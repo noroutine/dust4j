@@ -127,7 +127,7 @@ Writing your own compiler
 -------------------------
 
 For your convenience, filter supports plugging in custom compilers, though only one exists in all observable Universe atm ;). If you need major customizations like your own cache or own compiler, you have two interfaces, which will allow you to plug into this filter.
-Compiler should implement DustCompiler interface and is obtained via DustCompilerFactory's `createDustCompiler()` method. Your custom factory will need also to have default constructor.
+Compiler should implement `DustCompiler` interface and is obtained via `DustCompilerFactory`'s `createDustCompiler()` method. Your custom factory will need also to have default constructor.
 
 Please, also consider contributing your work to this project.
 
