@@ -1,9 +1,10 @@
 dust4j
 ======
 
-Dust.js is the very nice and ultra-fast JavaScript templating library, that was chosen and adopted by LinkedIn from over 20 others.
+Dust.js is the very nice and ultra-fast JavaScript templating library now chosen and adopted by LinkedIn from over 20 others.
 
-This project provides extensible, zero-dependency and non-intrusive support for automatic on-the-fly compilation for Dust.js templates for any Java Web Application that adheres Java Servlet specification.
+**dust4j** provides extensible, zero-dependency and non-intrusive automatic on-the-fly compilation for Dust.js templates for any Java Web Application that adheres Java Servlet specification.
+If you're not thick from density of buzzwords per character follow me :P
 
 Features
 --------
@@ -15,9 +16,9 @@ Features
 * integrated internal cache and ETag support
 * configurable
 
-Dust.js on-the-fly server-side compilation for your Java web applications
-
-Requirements: none, except plain Java SDK 6+ and Servlet API
+Requirements
+------------
+none, except plain Java SDK 6+ and Servlet API
 
 How to use?
 -----------
@@ -59,18 +60,18 @@ Setup your framework to return templates when URL ending with .dust.js are reque
 
         }
 
-
 * definition in tiles-defs.xml:
 
         ...
         <definition name="template.*" template="/WEB-INF/jsp/templates/{1}.jsp" />
         ...
 
-Now, if you gonna ask your container for URL like `http://localhost:8080/fancyapp/template/dustjs_demo.dust.js` it will hit the JSP of your Dust.js template, that template will be evaluated by JSP engine and will be automatically compiled and client will get already compiled template
+Now, if you gonna ask your container for URL like `http://localhost:8080/fancyapp/template/dustjs_demo.dust.js` it will hit the JSP of your Dust.js template, that template will be evaluated by JSP engine, will be automatically compiled by filter and client will get already compiled template
 
-Compiled templates register themselves with client-side dust.js library under unique name. This name is generated automatically from request URL relative to application context, stripping down `.dust.js` suffix
-
-For example for `http://localhost:8080/fancyapp/template/dustjs_demo.dust.js` template name will be 'template/dustjs_demo'. You can however change this to your needs.
+Compiled templates register themselves with client-side dust.js library under unique name.
+This name is generated automatically from request URL relative to application context, stripping down `.dust.js` suffix.
+For example for `http://localhost:8080/fancyapp/template/dustjs_demo.dust.js` template name will be 'template/dustjs_demo'.
+You can however change this to your needs.
 
 On your web page, you need to include dust.js libraries
 
@@ -79,8 +80,9 @@ On your web page, you need to include dust.js libraries
 
 and your template
 
-    <script type="text/javascript" defer="defer" src="/fancyapp/template/dustjs_demo.dust.js?version=6b3a3c4a3585142e39272dc3a31493b5b847e7a9&cache=true"></script>
+    <script type="text/javascript" defer="defer" src="/fancyapp/template/dustjs_demo.dust.js?version=6b3a3c4a3&cache=true"></script>
 
+_Noticed the `version` and `cache` parameters? This is for caching and ETag. Read on_
 Now, you're ready to use the template, which is registered with name `template/dustjs_demo`
 
 
@@ -100,10 +102,10 @@ Filter configuration options
 <td>eTag</td><td>Boolean</td><td>true</td><td>Enable/disable ETag support</td>
 </tr>
 <tr>
-<td>compilerFactory</td><td>String</td><td>me.noroutine.dust4j.DefaultDustCompilerFactory</td><td>Factory for obtaining DustCompiler instance</td>
+<td>compilerFactory</td><td>String</td><td>`me.noroutine.dust4j.DefaultDustCompilerFactory`</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
 </tr>
 <tr>
-<td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js</td><td>Regex to apply to relative part of requests to generate template names
+<td>templateNameRegex</td><td>Regular Expression</td><td>`/(.*).dust.js`</td><td>Regex to apply to relative part of requests to generate template names. Should contain at one and only matching group that will be used to infer template name
 </tr>
 </table>
 
@@ -119,3 +121,24 @@ ETag support
 
 Filter has built-in support for ETag for controlling client-side caching. To use it, you need to add `version` parameter to URL with ETag string you want to check. This string will be checked agains the If-None-Match header, if any, and in case of mismatch, the template will be recompiled.
 Maintaining consistency of version parameter values is project-specific and is out of scope of this project.
+
+Writing your own compiler
+-------------------------
+
+For your convenience, filter supports plugging in custom compilers, though only one exists in all observable Universe atm ;). If you need major customizations like your own cache or own compiler, you have two interfaces, which will allow you to plug into this filter.
+Compiler should implement DustCompiler interface and is obtained via DustCompilerFactory's `createDustCompiler()` method. Your custom factory will need also to have default constructor.
+
+Please, also consider contributing your work to this project.
+
+Thanks
+------
+
+Thanks go to Aleksander Williams (https://github.com/akdubya) for creating such a nice templating rocket.
+Also special thanks to LinkedIn (http://linkedin.com/) for taking care of it
+
+Links
+-----
+
+http://linkedin.github.com/dustjs/ "dust.js LinkedIn fork page"
+
+http://akdubya.github.com/dustjs/ "Original dust.js"
