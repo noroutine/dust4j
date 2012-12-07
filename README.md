@@ -106,7 +106,7 @@ Filter configuration options
 <td>compilerFactory</td><td>String</td><td>me.noroutine.dust4j.DefaultDustCompilerFactory</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
 </tr>
 <tr>
-<td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js</td><td>Regex to apply to relative part of requests to generate template names. Should contain at one and only matching group that will be used to infer template name
+<td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js</td><td>Regex to apply to relative part of requests to generate template names. Should contain one and only matching group that will be used to infer template name
 </tr>
 </table>
 
