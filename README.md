@@ -103,10 +103,10 @@ Filter configuration options
 <td>eTag</td><td>Boolean</td><td>true</td><td>Enable/disable ETag support</td>
 </tr>
 <tr>
-<td>compilerFactory</td><td>String</td><td>`me.noroutine.dust4j.DefaultDustCompilerFactory`</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
+<td>compilerFactory</td><td>String</td><td>me.noroutine.dust4j.DefaultDustCompilerFactory</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
 </tr>
 <tr>
-<td>templateNameRegex</td><td>Regular Expression</td><td>`/(.*).dust.js`</td><td>Regex to apply to relative part of requests to generate template names. Should contain at one and only matching group that will be used to infer template name
+<td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js</td><td>Regex to apply to relative part of requests to generate template names. Should contain at one and only matching group that will be used to infer template name
 </tr>
 </table>
 
