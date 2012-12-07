@@ -23,7 +23,6 @@ public class DustCompilingFilter implements Filter {
     private static final Class<? extends DustCompilerFactory> DEFAULT_COMPILER_FACTORY_CLASS = DefaultDustCompilerFactory.class;
 
     // init-param keys
-    private static final String PARAM_SUFFIX = "suffix";
     private static final String PARAM_COMPILER_FACTORY = "compilerFactory";
     private static final String PARAM_CACHE = "cache";
     private static final String PARAM_ETAG = "eTag";
