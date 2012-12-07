@@ -1,7 +1,7 @@
 dust4j
 ======
 
-**dust.js** is the very nice and ultra-fast JavaScript templating library now chosen and adopted by LinkedIn from over 20 others.
+**dust.js** [1] is the very nice and ultra-fast JavaScript templating library now chosen and adopted by LinkedIn [2] from over 20 others.
 
 **dust4j** provides extensible, zero-dependency and non-intrusive automatic on-the-fly compilation for **dust.js** templates for any Java Web Application that adheres Java Servlet specification.
 If you're not thick from density of buzzwords per character follow me :P
@@ -140,6 +140,6 @@ Also special thanks to LinkedIn (http://linkedin.com/) for taking care of it
 Links
 -----
 
-http://linkedin.github.com/dustjs/ "dust.js LinkedIn fork page"
+[1]: http://akdubya.github.com/dustjs/ "Original dust.js"
+[2]: http://linkedin.github.com/dustjs/ "dust.js LinkedIn fork page"
 
-http://akdubya.github.com/dustjs/ "Original dust.js"
