@@ -140,6 +140,6 @@ Also special thanks to LinkedIn (http://linkedin.com/) for taking care of it
 Links
 -----
 
-* http://akdubya.github.com/dustjs/ Original dust.js
-* http://linkedin.github.com/dustjs/ dust.js LinkedIn fork page
+* Original dust.js: http://akdubya.github.com/dustjs/
+* dust.js LinkedIn fork: http://linkedin.github.com/dustjs/
 
