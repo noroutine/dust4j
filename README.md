@@ -83,6 +83,7 @@ and your template
     <script type="text/javascript" src="/fancyapp/template/dustjs_demo.dust.js?version=6b3a3c4a3&cache=true"></script>
 
 _Noticed the `version` and `cache` parameters? This is for caching and ETag. Read on_
+
 Now, you're ready to use the template, which is registered with name `template/dustjs_demo`
 
 
