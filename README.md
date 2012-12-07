@@ -1,9 +1,9 @@
 dust4j
 ======
 
-Dust.js is the very nice and ultra-fast JavaScript templating library now chosen and adopted by LinkedIn from over 20 others.
+**dust.js** is the very nice and ultra-fast JavaScript templating library now chosen and adopted by LinkedIn from over 20 others.
 
-**dust4j** provides extensible, zero-dependency and non-intrusive automatic on-the-fly compilation for Dust.js templates for any Java Web Application that adheres Java Servlet specification.
+**dust4j** provides extensible, zero-dependency and non-intrusive automatic on-the-fly compilation for **dust.js** templates for any Java Web Application that adheres Java Servlet specification.
 If you're not thick from density of buzzwords per character follow me :P
 
 Features
@@ -66,7 +66,7 @@ Setup your framework to return templates when URL ending with .dust.js are reque
         <definition name="template.*" template="/WEB-INF/jsp/templates/{1}.jsp" />
         ...
 
-Now, if you gonna ask your container for URL like `http://localhost:8080/fancyapp/template/dustjs_demo.dust.js` it will hit the JSP of your Dust.js template, that template will be evaluated by JSP engine, will be automatically compiled by filter and client will get already compiled template
+Now, if you gonna ask your container for URL like `http://localhost:8080/fancyapp/template/dustjs_demo.dust.js` it will hit the JSP of your dust.js template, that template will be evaluated by JSP engine, will be automatically compiled by filter and client will get already compiled template
 
 Compiled templates register themselves with client-side dust.js library under unique name.
 This name is generated automatically from request URL relative to application context, stripping down `.dust.js` suffix.
