@@ -56,7 +56,7 @@ import java.util.logging.Logger;
  * <td>compilerFactory</td><td>String</td><td>me.noroutine.dust4j.DefaultDustCompilerFactory</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
  * </tr>
  * <tr>
- * <td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js</td><td>Regex to apply to relative part of requests to generate template names. Should contain one and only matching group that will be used to infer template name
+ * <td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js$</td><td>Regex to apply to relative part of requests to generate template names. Should contain one and only matching group that will be used to infer template name
  * </tr>
  * </table>
  * </p>
@@ -82,11 +82,12 @@ import java.util.logging.Logger;
  * And define a bean with id <code>dustCompilingFilter</code>in your applicationContext.xml (<strong>NOT</strong> dispatcher servlet context)
  * <pre>&nbsp;{@code
  *
- * <bean name="dustCompilingFilter" class="de.icash.dust.DustCompilingFilter">
- *     <property name="compilerFactory" ref="compilerFactoryBean" />
- *     <property name="cacheEnabled" value="true" />
- *     <property name="ETagEnabled" value="true" />
- *     <property name="templateNameRegex" value="^template/(.*).dust.js$" />
+ * <bean name="dustCompilingFilter" class="me.noroutine.dust4j.DustCompilingFilter">
+ *    <property name="compilerFactory">
+ *        <bean class="me.noroutine.dust4j.DefaultDustCompilerFactory" />
+ *    </property>
+ *    <property name="cacheEnabled" value="true" />
+ *    <property name="ETagEnabled" value="true" />
  * </bean>
  * }</pre>
  * </p>
@@ -101,8 +102,7 @@ public class DustCompilingFilter implements Filter {
 
     private static final String DUST_TEMPLATE_CACHE_ATTR = "com.noroutine.dust4j.dustTemplateCache";
 
-    private static final String DEFAULT_DUST_SUFFIX = ".dust.js";
-    private static final Class<? extends DustCompilerFactory> DEFAULT_COMPILER_FACTORY_CLASS = DefaultDustCompilerFactory.class;
+    private static final String DEFAULT_NAME_REGEX = "/(.*).dust.js$";
 
     // init-param keys
     private static final String PARAM_COMPILER_FACTORY = "compilerFactory";
@@ -110,15 +110,15 @@ public class DustCompilingFilter implements Filter {
     private static final String PARAM_ETAG = "eTag";
     private static final String PARAM_NAME_REGEX = "templateNameRegex";
 
-    private DustCompilerFactory compilerFactory;
+    private DustCompilerFactory compilerFactory = new DefaultDustCompilerFactory();
 
     private DustCompiler compiler;
 
-    private String templateNameRegex;
+    private String templateNameRegex = DEFAULT_NAME_REGEX;
 
-    private boolean cacheEnabled;
+    private boolean cacheEnabled = true;
 
-    private boolean eTagEnabled;
+    private boolean eTagEnabled = false;
 
     public DustCompilingFilter() {
     }
@@ -129,28 +129,23 @@ public class DustCompilingFilter implements Filter {
 
         if (filterConfig.getInitParameter(PARAM_CACHE) != null) {
             cacheEnabled = Boolean.valueOf(filterConfig.getInitParameter(PARAM_CACHE));
-        } else {
-            cacheEnabled = true;
         }
 
         if (filterConfig.getInitParameter(PARAM_ETAG) != null) {
             eTagEnabled = Boolean.valueOf(filterConfig.getInitParameter(PARAM_ETAG));
-        } else {
-            eTagEnabled = false;
         }
 
-        templateNameRegex = getTemplateNameRegex(appCtx, filterConfig.getInitParameter(PARAM_NAME_REGEX));
+        if (filterConfig.getInitParameter(PARAM_NAME_REGEX) != null) {
+            templateNameRegex = filterConfig.getInitParameter(PARAM_NAME_REGEX);
+        }
 
         try {
             Class<? extends DustCompilerFactory> compilerFactoryClass;
             if (filterConfig.getInitParameter(PARAM_COMPILER_FACTORY) != null) {
                 compilerFactoryClass = (Class<? extends DustCompilerFactory>) Class.forName(filterConfig.getInitParameter(PARAM_COMPILER_FACTORY));
-            } else {
-                // if no factory specified, check for compiler
-                compilerFactoryClass = DEFAULT_COMPILER_FACTORY_CLASS;
+                compilerFactory = compilerFactoryClass.newInstance();
             }
 
-            setCompilerFactory(compilerFactoryClass.newInstance());
         } catch (Exception e) {
             throw new ServletException(e);
         }
@@ -162,7 +157,11 @@ public class DustCompilingFilter implements Filter {
             HttpServletRequest request = (HttpServletRequest) req;
             HttpServletResponse response = (HttpServletResponse) resp;
 
-            if (request.getRequestURI().matches(templateNameRegex)) {
+            String appCtx = request.getSession().getServletContext().getContextPath();
+            String requestURI = request.getRequestURI();
+            String requestURIRegex = getTemplateNameRegex(appCtx, templateNameRegex);
+
+            if (requestURI.matches(requestURIRegex)) {
                 if (this.compiler == null) {
                     this.compiler = this.compilerFactory.createDustCompiler();
                 }
@@ -182,7 +181,7 @@ public class DustCompilingFilter implements Filter {
 
                     PrintWriter out = response.getWriter();
                     Map<String, String> templateCache = getDustTemplateCache(request);
-                    String templateName = getTemplateName(request.getRequestURI());
+                    String templateName = requestURI.replaceFirst(requestURIRegex, "$1");
                     String template;
 
                     if (cache && cacheEnabled && templateCache.containsKey(templateName)) {
@@ -242,10 +241,6 @@ public class DustCompilingFilter implements Filter {
         return cache;
     }
 
-    private String getTemplateName(String templateUri) {
-        return templateUri.replaceFirst(templateNameRegex, "$1");
-    }
-
     private String getErrorTemplate(String templateName) {
         return "(function(){dust.register(\"" + templateName + "\",body_0);function body_0(chk,ctx){return chk.write(\"Failed to compile template\");}return body_0;})();";
     }
@@ -255,10 +250,7 @@ public class DustCompilingFilter implements Filter {
         if (relativeRegex != null) {
             sb.append(relativeRegex.startsWith("^") ? relativeRegex.substring(1) : relativeRegex);
         } else {
-            if (appCtx.charAt(appCtx.length() - 1) != '/') {
-                sb.append("/");
-            }
-            sb.append("(.*)").append(DEFAULT_DUST_SUFFIX).append("$");
+            sb.append(DEFAULT_NAME_REGEX);
         }
         return sb.toString();
     }

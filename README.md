@@ -3,22 +3,20 @@ dust4j
 
 **dust.js** is the very nice and ultra-fast JavaScript templating library now chosen and adopted by LinkedIn from over 20 others.
 
-**dust4j** provides extensible, zero-dependency and non-intrusive automatic on-the-fly compilation for **dust.js** templates for any Java Web Application that adheres Java Servlet specification.
-If you're not thick from density of buzzwords per character follow me :P
+**dust4j** provides extensible, zero-dependency and non-intrusive automatic on-the-fly compilation of Servlet/JSP output to **dust.js** templates for any Java Web Application that adheres Java Servlet specification.
 
 Features
 --------
 
-* no dependencies, except Java 6+ and Servlet API
-* independent of any frameworks
-* provides setters for integration with Spring's DelegatingFilterProxy
-* extensible, you can configure and implement your own `DustCompilerFactory`
+* small and independent
+* integrates with Spring's DelegatingFilterProxy
+* extensible
 * integrated internal cache and ETag support
 * configurable
 
 Requirements
 ------------
-none, except plain Java SDK 6+ and Servlet API
+none, except plain Java SDK 6+, Servlet API and human
 
 How to use?
 -----------
@@ -97,31 +95,68 @@ Filter configuration options
 <th>Default</th>
 <th>Description</th>
 <tr>
-<td>cache</td><td>Boolean</td><td>true</td><td>Enable/disable internal cache</td>
+<td>cache</td><td>boolean</td><td>true</td><td>Enable/disable internal cache</td>
 </tr>
 <tr>
-<td>eTag</td><td>Boolean</td><td>true</td><td>Enable/disable ETag support</td>
+<td>eTag</td><td>boolean</td><td>false</td><td>Enable/disable ETag support</td>
 </tr>
 <tr>
-<td>compilerFactory</td><td>String</td><td>me.noroutine.dust4j.DefaultDustCompilerFactory</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
+<td>compilerFactory</td><td>string</td><td>me.noroutine.dust4j.DefaultDustCompilerFactory</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
 </tr>
 <tr>
-<td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js</td><td>Regex to apply to relative part of requests to generate template names. Should contain one and only matching group that will be used to infer template name
+<td>templateNameRegex</td><td>regular expression</td><td>/(.*).dust.js$</td><td>Regex to apply to relative part of requests to generate template names. Should contain one and only matching group that will be used to infer template name
 </tr>
 </table>
 
+Using with Spring (and possibly other DI frameworks)
+----------------------------------------------------
 
+Filter has a set of setters to use it as a component in DI framework like Spring.
+Spring provides a proxy servlet filter that can delegate filter processing to Spring-managed bean.
+
+To configure this, define your filter in `web.xml` like this:
+
+    <filter>
+        <filter-name>dustCompilingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>dustCompilingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+And define a bean with id `dustCompilingFilter` in your _applicationContext.xml_ (**NOT** dispatcher servlet context)
+
+    <bean name="dustCompilingFilter" class="me.noroutine.dust4j.DustCompilingFilter">
+       <property name="compilerFactory">
+           <bean class="me.noroutine.dust4j.DefaultDustCompilerFactory" />
+       </property>
+       <property name="cacheEnabled" value="true" />
+       <property name="ETagEnabled" value="true" />
+    </bean>
+ 
 Overriding cache
 ----------------
 
 Filter has cache enabled by default, as compilation takes significant time and slows downs container to commit the response. You can disable it, but this is not generally recommended.
 If you have cache enabled and want to go through the cache to the compiler for debugging or whatever reasons, just add `cache=false` to your template URL.
 
+Important thing to understand is that caching of dynamic templates may not make sense and often will produce undesired results.
+For example if you will interleave your template with Spring Security tags to show/hide certain parts of it, caching will be in your way. In such case you have three options: 
+* implement your logic not in JSP but with dust syntax, which basically making it less tied to JSP
+* disable cache with adding cache=false to script src attribute on your page
+* create several templates (aka views)
+
+Choose whatever best suits your particular use case
+
 ETag support
 ------------
 
-Filter has built-in support for ETag for controlling client-side caching. To use it, you need to add `version` parameter to URL with ETag string you want to check. This string will be checked agains the If-None-Match header, if any, and in case of mismatch, the template will be recompiled.
-Maintaining consistency of version parameter values is project-specific and is out of scope of this project.
+Filter has built-in support for ETag for controlling client-side caching. To enable it set init-param eTag to true. 
+
+To use it, you need to add `version` parameter to URL with ETag string you want to check. This string will be checked agains the If-None-Match header, if any, and in case of mismatch, the template will be recompiled.
+Maintaining consistency of version parameter values is project-specific and is out of scope of this library.
 
 Writing your own compiler
 -------------------------
@@ -134,12 +169,13 @@ Please, also consider contributing your work to this project.
 Thanks
 ------
 
-Thanks go to Aleksander Williams (https://github.com/akdubya) for creating such a nice templating rocket.
-Also special thanks to LinkedIn (http://linkedin.com/) for taking care of it
+Thanks go to [Aleksander Williams](https://github.com/akdubya) for creating such a nice templating rocket.
+Also special thanks to [LinkedIn](http://linkedin.com/) for taking care of it
+
+Thanks to you if feedback, bugs and suggestions! Also please consider contributing to this project!
 
 Links
 -----
 
 * Original dust.js: http://akdubya.github.com/dustjs/
 * dust.js LinkedIn fork: http://linkedin.github.com/dustjs/
-
