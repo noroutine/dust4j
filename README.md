@@ -153,7 +153,7 @@ Choose whatever best suits your particular use case
 ETag support
 ------------
 
-Filter has built-in support for ETag for controlling client-side caching. To enable it set init-param eTag to true. 
+Filter has built-in support for ETag for controlling client-side caching. To enable it set init-param `eTag` to `true`. 
 
 To use it, you need to add `version` parameter to URL with ETag string you want to check. This string will be checked agains the If-None-Match header, if any, and in case of mismatch, the template will be recompiled.
 Maintaining consistency of version parameter values is project-specific and is out of scope of this library.
@@ -172,7 +172,7 @@ Thanks
 Thanks go to [Aleksander Williams](https://github.com/akdubya) for creating such a nice templating rocket.
 Also special thanks to [LinkedIn](http://linkedin.com/) for taking care of it
 
-Thanks to you if feedback, bugs and suggestions! Also please consider contributing to this project!
+Also thanks in advance to you for the code, feedback, bug reports and suggestions, if you have any.
 
 Links
 -----
