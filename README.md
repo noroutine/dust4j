@@ -172,7 +172,7 @@ Thanks
 Thanks go to [Aleksander Williams](https://github.com/akdubya) for creating such a nice templating rocket.
 Also special thanks to [LinkedIn](http://linkedin.com/) for taking care of it
 
-Also thanks in advance to you for the code, feedback, bug reports and suggestions, if you have any.
+Also thanks in advance to you for the code, feedback, bug reports, suggestions or just a star on GitHub :)
 
 Links
 -----
