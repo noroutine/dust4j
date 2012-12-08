@@ -1,4 +1,4 @@
-dust4j
+[dust4j](http://dust4j.noroutine.me/)
 ======
 
 **dust.js** is the very nice and ultra-fast JavaScript templating library now chosen and adopted by LinkedIn from over 20 others.
