@@ -4,8 +4,11 @@ import javax.script.*;
 import java.io.Reader;
 
 /**
+ * JavaScript-based compiler, that uses dust.js 1.1.1 library to compile templates.
+ * Default implementation of {@link DustCompiler}.
+ *
  * @author Oleksii Khilkevych
- * @since 07.12.12
+ * @since dust4j 0.1
  */
 
 public class RhinoDustCompiler implements DustCompiler {
@@ -13,6 +16,10 @@ public class RhinoDustCompiler implements DustCompiler {
     private Invocable invocable;
     private Object dust;
 
+    /**
+     * @param dustJs    reader that dust.js library would be read from
+     * @throws ScriptException  would be thrown if there is any problem with JavaScript code
+     */
     public RhinoDustCompiler(Reader dustJs) throws ScriptException {
         ScriptEngine engine = getJavaScriptEngine();
         this.invocable = (Invocable) engine;

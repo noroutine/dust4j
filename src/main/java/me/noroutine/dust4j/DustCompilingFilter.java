@@ -9,8 +9,90 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Main workhorse of dust4j, the filter that intercepts the JSP/Servlet output stream and feeds the content of it to instance of {@link DustCompiler}
+ *
+ * This allows to use JSP or any other framework to create dynamic templates.
+ * Supports simple session-based cache and eTag support to control client-side caching of compiled templates
+ *
+ * <h3>Setup</h3>
+ * <p>
+ * To setup filter in your application, add the definitions to yout web.xml:
+ *
+ * <pre>&nbsp;{@code
+ *
+ * <filter>
+ *     <filter-name>dustCompilingFilter</filter-name>
+ *     <filter-class>me.noroutine.dust4j.DustCompilingFilter</filter-class>
+ * </filter>
+ *
+ * <filter-mapping>
+ *     <filter-name>dustCompilingFilter</filter-name>
+ *     <url-pattern>/*</url-pattern>
+ * </filter-mapping>
+ * }</pre>
+ *
+ * Note that you should use /* as url-pattern, due to the fact that *.dust.js doesn't work as one would expect.
+ * So filter will apply for any URL, but it will only compile those that match the <code>templateNameRegex</code>,
+ * which is by default any URL that ends with .dust.js
+ * </p>
+ *
+ * <h3>Configuration</h3>
+ * <p>
+ * This filter supports the following parameters:
+ *
+ * <table>
+ * <thead>
+ * <th>init-param name</th>
+ * <th>Type</th>
+ * <th>Default</th>
+ * <th>Description</th>
+ * <tr>
+ * <td>cache</td><td>Boolean</td><td>true</td><td>Enable/disable internal cache</td>
+ * </tr>
+ * <tr>
+ * <td>eTag</td><td>Boolean</td><td>false</td><td>Enable/disable ETag support</td>
+ * </tr>
+ * <tr>
+ * <td>compilerFactory</td><td>String</td><td>me.noroutine.dust4j.DefaultDustCompilerFactory</td><td>Canonical name of factory for obtaining DustCompiler instance. Should implement DustCompilerFactory interface</td>
+ * </tr>
+ * <tr>
+ * <td>templateNameRegex</td><td>Regular Expression</td><td>/(.*).dust.js</td><td>Regex to apply to relative part of requests to generate template names. Should contain one and only matching group that will be used to infer template name
+ * </tr>
+ * </table>
+ * </p>
+ * <h3>Using with Spring (and possibly others?)</h3>
+ * <p>
+ * Filter has a set of setters to use it as a component in DI framework like Spring.
+ * Spring provides a proxy servlet filter that can delegate filter processing to Spring-managed bean.
+ *
+ * To configure this, define your filter like this:
+ * <pre>&nbsp;{@code
+ *
+ * <filter>
+ *     <filter-name>dustCompilingFilter</filter-name>
+ *     <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+ * </filter>
+ *
+ * <filter-mapping>
+ *     <filter-name>dustCompilingFilter</filter-name>
+ *     <url-pattern>/*</url-pattern>
+ * </filter-mapping>
+ * }</pre>
+ *
+ * And define a bean with id <code>dustCompilingFilter</code>in your applicationContext.xml (<strong>NOT</strong> dispatcher servlet context)
+ * <pre>&nbsp;{@code
+ *
+ * <bean name="dustCompilingFilter" class="de.icash.dust.DustCompilingFilter">
+ *     <property name="compilerFactory" ref="compilerFactoryBean" />
+ *     <property name="cacheEnabled" value="true" />
+ *     <property name="ETagEnabled" value="true" />
+ *     <property name="templateNameRegex" value="^template/(.*).dust.js$" />
+ * </bean>
+ * }</pre>
+ * </p>
+ *
  * @author Oleksii Khilkevych
- * @since 16.10.12
+ * @since dust4j 0.1
  */
 
 public class DustCompilingFilter implements Filter {
@@ -27,8 +109,6 @@ public class DustCompilingFilter implements Filter {
     private static final String PARAM_CACHE = "cache";
     private static final String PARAM_ETAG = "eTag";
     private static final String PARAM_NAME_REGEX = "templateNameRegex";
-
-    private Class<? extends DustCompilerFactory> compilerFactoryClass;
 
     private DustCompilerFactory compilerFactory;
 
@@ -56,13 +136,13 @@ public class DustCompilingFilter implements Filter {
         if (filterConfig.getInitParameter(PARAM_ETAG) != null) {
             eTagEnabled = Boolean.valueOf(filterConfig.getInitParameter(PARAM_ETAG));
         } else {
-            eTagEnabled = true;
+            eTagEnabled = false;
         }
 
         templateNameRegex = getTemplateNameRegex(appCtx, filterConfig.getInitParameter(PARAM_NAME_REGEX));
 
-
         try {
+            Class<? extends DustCompilerFactory> compilerFactoryClass;
             if (filterConfig.getInitParameter(PARAM_COMPILER_FACTORY) != null) {
                 compilerFactoryClass = (Class<? extends DustCompilerFactory>) Class.forName(filterConfig.getInitParameter(PARAM_COMPILER_FACTORY));
             } else {
@@ -70,8 +150,7 @@ public class DustCompilingFilter implements Filter {
                 compilerFactoryClass = DEFAULT_COMPILER_FACTORY_CLASS;
             }
 
-            compilerFactory = compilerFactoryClass.newInstance();
-            compiler = compilerFactory.createDustCompiler();
+            setCompilerFactory(compilerFactoryClass.newInstance());
         } catch (Exception e) {
             throw new ServletException(e);
         }
@@ -85,7 +164,11 @@ public class DustCompilingFilter implements Filter {
 
             if (request.getRequestURI().matches(templateNameRegex)) {
                 if (this.compiler == null) {
-                    log.log(Level.SEVERE, "Dust.js is not setup correctly, skipping for this request");
+                    this.compiler = this.compilerFactory.createDustCompiler();
+                }
+
+                if (this.compiler == null) {
+                    log.log(Level.SEVERE, "Failed to obtain compiler instance, skipping for this request");
                 } else {
                     boolean cache = Boolean.valueOf(request.getParameter("cache"));
                     String version = request.getParameter("version");
@@ -188,8 +271,12 @@ public class DustCompilingFilter implements Filter {
         this.eTagEnabled = eTagEnabled;
     }
 
-    public void setCompiler(DustCompiler compiler) {
-        this.compiler = compiler;
+    public void setCompilerFactory(DustCompilerFactory compilerFactory) {
+        if (compilerFactory == null) {
+            throw new IllegalArgumentException("compilerFactory bust be not null");
+        }
+        this.compilerFactory = compilerFactory;
+        this.compiler = null;
     }
 
     public void setTemplateNameRegex(String templateNameRegex) {

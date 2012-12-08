@@ -5,8 +5,10 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 
 /**
+ * Default implementation of {@link DustCompilerFactory}
+ *
  * @author Oleksii Khilkevych
- * @since 07.12.12
+ * @since dust4j 0.1
  */
 
 public class DefaultDustCompilerFactory implements DustCompilerFactory {
