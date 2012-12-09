@@ -21,6 +21,8 @@ none, except plain Java SDK 6+, Servlet API and human
 How to use?
 -----------
 
+_NOTE_ Right now dust4j is half-way to Maven Central. Until then, you should manually install it into your local repository.
+
 Add dust4j as dependency to your Maven project
 
         <dependency>
