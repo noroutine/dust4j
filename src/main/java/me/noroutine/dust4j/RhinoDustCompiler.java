@@ -4,7 +4,7 @@ import javax.script.*;
 import java.io.Reader;
 
 /**
- * JavaScript-based compiler, that uses dust.js 1.1.1 library to compile templates.
+ * JavaScript-based compiler, that uses dust.js library to compile templates.
  * Default implementation of {@link DustCompiler}.
  *
  * @author Oleksii Khilkevych
