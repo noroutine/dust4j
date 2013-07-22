@@ -158,10 +158,10 @@ public class DustCompilingFilter implements Filter {
             HttpServletResponse response = (HttpServletResponse) resp;
 
             String appCtx = request.getSession().getServletContext().getContextPath();
-            String requestURI = request.getRequestURI();
-            String requestURIRegex = getTemplateNameRegex(appCtx, templateNameRegex);
+            String uri = DustCompilingFilter.getURL(request);
+            String uriRegex = getTemplateNameRegex(appCtx, templateNameRegex);
 
-            if (requestURI.matches(requestURIRegex)) {
+            if (uri.matches(uriRegex)) {
                 if (this.compiler == null) {
                     this.compiler = this.compilerFactory.createDustCompiler();
                 }
@@ -181,7 +181,7 @@ public class DustCompilingFilter implements Filter {
 
                     PrintWriter out = response.getWriter();
                     Map<String, String> templateCache = getDustTemplateCache(request);
-                    String templateName = requestURI.replaceFirst(requestURIRegex, "$1");
+                    String templateName = uri.replaceFirst(uriRegex, "$1");
                     String template;
 
                     if (cache && cacheEnabled && templateCache.containsKey(templateName)) {
@@ -210,7 +210,7 @@ public class DustCompilingFilter implements Filter {
                     }
 
                     response.setContentType("application/json");
-                    response.setContentLength(template.length());
+                    response.setContentLength(template.getBytes().length);
 
                     // set ETag
                     if (cache && eTagEnabled && version != null) {
@@ -275,6 +275,23 @@ public class DustCompilingFilter implements Filter {
         this.templateNameRegex = templateNameRegex;
     }
 
+    public static String getURL(HttpServletRequest req) {
+        String contextPath = req.getContextPath();
+        String servletPath = req.getServletPath();
+        String pathInfo = req.getPathInfo();
+        String queryString = req.getQueryString();
+
+        StringBuffer url =  new StringBuffer();
+        url.append(contextPath).append(servletPath);
+
+        if (pathInfo != null) {
+            url.append(pathInfo);
+        }
+        if (queryString != null) {
+            url.append("?").append(queryString);
+        }
+        return url.toString();
+    }
 }
 
 class CharResponseWrapper extends HttpServletResponseWrapper {
