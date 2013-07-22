@@ -13,7 +13,7 @@ import java.io.Reader;
 
 public class DefaultDustCompilerFactory implements DustCompilerFactory {
 
-    private static final String DUST_FULL = "com/linkedin/dustjs/dust-full-1.2.3.js";
+    private static final String DUST_FULL = "com/linkedin/dustjs/dust-full-2.0.0.min.js";
 
     public DefaultDustCompilerFactory() {
     }

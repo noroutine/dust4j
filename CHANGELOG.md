@@ -1,3 +1,8 @@
+### 0.5 (22 Jul 2013
+
+* dust.js 2.0.0 with new upstream context traversal
+* fixed utf-8 bug with content length
+* template name now can be got from request parameter through regexp
 
 ### 0.3 (19 Apr 2013)
 * dust.js 1.2.3
