@@ -210,7 +210,7 @@ public class DustCompilingFilter implements Filter {
                     }
 
                     response.setContentType("application/json");
-                    response.setContentLength(template.getBytes().length);
+                    response.setContentLength(template.getBytes("UTF-8").length);
 
                     // set ETag
                     if (cache && eTagEnabled && version != null) {
