@@ -302,7 +302,11 @@ class CharResponseWrapper extends HttpServletResponseWrapper {
     private ServletOutputStream servletOutputStream;
 
     public String toString() {
-        return out.toString();
+        try {
+            return out.toString("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CharResponseWrapper(HttpServletResponse response) {
