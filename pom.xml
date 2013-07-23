@@ -10,7 +10,7 @@
 
     <groupId>me.noroutine</groupId>
     <artifactId>dust4j</artifactId>
-    <version>0.5.1</version>
+    <version>0.5.2-SNAPSHOT</version>
     <name>dust4j</name>
     <description>dust.js for your Java web applications</description>
     <url>http://dust4j.noroutine.me/</url>
